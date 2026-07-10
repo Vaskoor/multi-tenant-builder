@@ -1,0 +1,562 @@
+import { Tenant } from '@prisma/client';
+
+export interface ThemeProps {
+  tenant: Tenant;
+}
+
+// Helper to get config with defaults
+function getConfig(tenant: Tenant) {
+  const config = (tenant.themeConfig as any) || {};
+  return {
+    primary_color: config.primary_color || '#0070f3',
+    secondary_color: config.secondary_color || '#6c757d',
+    font_family: config.font_family || 'Inter, sans-serif',
+    hero_title: config.hero_title || 'Welcome to our store',
+    hero_subtitle: config.hero_subtitle || 'We deliver quality',
+    hero_button_text: config.hero_button_text || 'Get Started',
+    hero_button_link: config.hero_button_link || '#',
+    features: config.features || [
+      { title: 'Feature 1', description: 'Description of feature 1.' },
+      { title: 'Feature 2', description: 'Description of feature 2.' },
+      { title: 'Feature 3', description: 'Description of feature 3.' },
+    ],
+    about_title: config.about_title || 'About Us',
+    about_description: config.about_description || 'We are a team dedicated to quality.',
+    about_image: config.about_image || '',
+    social_facebook: config.social_facebook || '',
+    social_instagram: config.social_instagram || '',
+    social_twitter: config.social_twitter || '',
+    social_youtube: config.social_youtube || '',
+    footer_text: config.footer_text || '© 2025 All rights reserved.',
+    layout: config.layout || 'centered',
+    ...config,
+  };
+}
+
+// -------- THEME 1: MODERN (existing, enhanced) --------
+const ModernTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-white" style={{ fontFamily: c.font_family }}>
+      <header className="border-b" style={{ borderColor: c.primary_color }}>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-2xl font-bold" style={{ color: c.primary_color }}>{tenant.name}</h1>
+          <nav className="space-x-6 text-sm">
+            <a href="#" className="hover:underline">Home</a>
+            <a href="#features" className="hover:underline">Features</a>
+            <a href="#about" className="hover:underline">About</a>
+            <a href="#" className="hover:underline">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        {/* Hero */}
+        <section className="text-center py-20 px-4" style={{ backgroundColor: c.primary_color + '10' }}>
+          <h2 className="text-5xl font-extrabold tracking-tight" style={{ color: c.primary_color }}>{c.hero_title}</h2>
+          <p className="text-xl text-gray-600 mt-4 max-w-2xl mx-auto">{c.hero_subtitle}</p>
+          <div className="mt-8">
+            <a href={c.hero_button_link} className="px-8 py-3 text-white rounded-lg shadow-lg inline-block" style={{ backgroundColor: c.primary_color }}>{c.hero_button_text}</a>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="max-w-6xl mx-auto px-4 py-16">
+          <h3 className="text-3xl font-bold text-center mb-12">Why Choose Us</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {c.features.map((f: any, i: number) => (
+              <div key={i} className="p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+                <h4 className="font-bold text-lg">{f.title}</h4>
+                <p className="text-gray-600 mt-2">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* About */}
+        <section id="about" className="bg-gray-50 py-16 px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            {c.about_image && <img src={c.about_image} alt="About" className="w-full md:w-1/2 rounded-lg shadow-md" />}
+            <div>
+              <h3 className="text-3xl font-bold" style={{ color: c.primary_color }}>{c.about_title}</h3>
+              <p className="text-gray-600 mt-4">{c.about_description}</p>
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t py-6 text-center text-gray-500 text-sm">
+          {c.footer_text}
+          <div className="mt-2 flex justify-center gap-4">
+            {c.social_facebook && <a href={c.social_facebook} className="hover:underline">Facebook</a>}
+            {c.social_instagram && <a href={c.social_instagram} className="hover:underline">Instagram</a>}
+            {c.social_twitter && <a href={c.social_twitter} className="hover:underline">Twitter</a>}
+            {c.social_youtube && <a href={c.social_youtube} className="hover:underline">YouTube</a>}
+          </div>
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// -------- THEME 2: DARK (new) --------
+const DarkTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-200" style={{ fontFamily: c.font_family }}>
+      <header className="border-b border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-2xl font-bold" style={{ color: c.primary_color }}>{tenant.name}</h1>
+          <nav className="space-x-6 text-sm">
+            <a href="#" className="hover:text-white">Home</a>
+            <a href="#features" className="hover:text-white">Features</a>
+            <a href="#about" className="hover:text-white">About</a>
+            <a href="#" className="hover:text-white">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        <section className="text-center py-20 px-4 bg-gray-800">
+          <h2 className="text-5xl font-extrabold tracking-tight" style={{ color: c.primary_color }}>{c.hero_title}</h2>
+          <p className="text-xl text-gray-400 mt-4 max-w-2xl mx-auto">{c.hero_subtitle}</p>
+          <div className="mt-8">
+            <a href={c.hero_button_link} className="px-8 py-3 rounded-lg shadow-lg inline-block" style={{ backgroundColor: c.primary_color, color: '#fff' }}>{c.hero_button_text}</a>
+          </div>
+        </section>
+        <section id="features" className="max-w-6xl mx-auto px-4 py-16">
+          <h3 className="text-3xl font-bold text-center mb-12 text-white">Features</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {c.features.map((f: any, i: number) => (
+              <div key={i} className="p-6 bg-gray-800 rounded-xl shadow-sm border border-gray-700">
+                <h4 className="font-bold text-lg text-white">{f.title}</h4>
+                <p className="text-gray-400 mt-2">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="about" className="bg-gray-800 py-16 px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            {c.about_image && <img src={c.about_image} alt="About" className="w-full md:w-1/2 rounded-lg shadow-md" />}
+            <div>
+              <h3 className="text-3xl font-bold" style={{ color: c.primary_color }}>{c.about_title}</h3>
+              <p className="text-gray-400 mt-4">{c.about_description}</p>
+            </div>
+          </div>
+        </section>
+        <footer className="border-t border-gray-700 py-6 text-center text-gray-500 text-sm">
+          {c.footer_text}
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// -------- THEME 3: PLAYFUL (new) --------
+const PlayfulTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-yellow-50" style={{ fontFamily: c.font_family }}>
+      <header className="border-b border-pink-200 bg-white/70 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">{tenant.name}</h1>
+          <nav className="space-x-6 text-sm">
+            <a href="#" className="hover:text-purple-600">Home</a>
+            <a href="#features" className="hover:text-purple-600">Features</a>
+            <a href="#about" className="hover:text-purple-600">About</a>
+            <a href="#" className="hover:text-purple-600">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        <section className="text-center py-20 px-4">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-5xl font-extrabold tracking-tight text-purple-700">{c.hero_title}</h2>
+          <p className="text-xl text-gray-700 mt-4 max-w-2xl mx-auto">{c.hero_subtitle}</p>
+          <div className="mt-8">
+            <a href={c.hero_button_link} className="px-8 py-3 rounded-full shadow-lg inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white">{c.hero_button_text}</a>
+          </div>
+        </section>
+        <section id="features" className="max-w-6xl mx-auto px-4 py-16">
+          <h3 className="text-3xl font-bold text-center mb-12 text-purple-800">✨ Features</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {c.features.map((f: any, i: number) => (
+              <div key={i} className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition">
+                <h4 className="font-bold text-lg text-pink-700">{f.title}</h4>
+                <p className="text-gray-600 mt-2">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="about" className="bg-white/50 py-16 px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            {c.about_image && <img src={c.about_image} alt="About" className="w-full md:w-1/2 rounded-3xl shadow-lg" />}
+            <div>
+              <h3 className="text-3xl font-bold text-pink-700">{c.about_title}</h3>
+              <p className="text-gray-700 mt-4">{c.about_description}</p>
+            </div>
+          </div>
+        </section>
+        <footer className="border-t border-pink-200 py-6 text-center text-gray-500 text-sm">
+          {c.footer_text}
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// -------- THEME 4: MINIMAL (already exists, but we'll keep it) --------
+const MinimalTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-white flex flex-col justify-center items-center px-4" style={{ fontFamily: c.font_family }}>
+      <h1 className="text-6xl font-light tracking-tight" style={{ color: c.primary_color }}>{tenant.name}</h1>
+      <p className="text-lg text-gray-500 mt-4">{c.hero_subtitle}</p>
+      <div className="mt-8 w-16 h-1 bg-gray-300"></div>
+    </div>
+  );
+};
+
+// -------- THEME 5: CORPORATE (new) --------
+const CorporateTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-white" style={{ fontFamily: "'Roboto', sans-serif" }}>
+      <header className="border-b-4 border-blue-800 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-2xl font-bold text-blue-900">{tenant.name}</h1>
+          <nav className="space-x-8 text-sm text-gray-600">
+            <a href="#" className="hover:text-blue-800">Home</a>
+            <a href="#features" className="hover:text-blue-800">Solutions</a>
+            <a href="#about" className="hover:text-blue-800">About</a>
+            <a href="#" className="hover:text-blue-800">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        <section className="bg-gray-50 py-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-5xl font-light text-blue-900">{c.hero_title}</h2>
+            <p className="text-xl text-gray-700 mt-4">{c.hero_subtitle}</p>
+            <div className="mt-8">
+              <a href={c.hero_button_link} className="px-8 py-3 bg-blue-800 text-white rounded hover:bg-blue-700 inline-block">{c.hero_button_text}</a>
+            </div>
+          </div>
+        </section>
+        <section id="features" className="max-w-6xl mx-auto px-4 py-16">
+          <h3 className="text-3xl font-light text-center mb-12 text-blue-900">Our Services</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {c.features.map((f: any, i: number) => (
+              <div key={i} className="p-6 border border-gray-200 rounded shadow-sm">
+                <h4 className="font-bold text-lg text-blue-800">{f.title}</h4>
+                <p className="text-gray-600 mt-2">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="about" className="bg-gray-50 py-16 px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            {c.about_image && <img src={c.about_image} alt="About" className="w-full md:w-1/2 rounded shadow" />}
+            <div>
+              <h3 className="text-3xl font-light text-blue-900">{c.about_title}</h3>
+              <p className="text-gray-700 mt-4">{c.about_description}</p>
+            </div>
+          </div>
+        </section>
+        <footer className="border-t py-6 text-center text-gray-500 text-sm">
+          {c.footer_text}
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// -------- THEME 6: VINTAGE (new) --------
+const VintageTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-[#faf8f5] font-serif" style={{ fontFamily: "'Georgia', serif" }}>
+      <header className="border-b-2 border-amber-200">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-3xl font-bold text-amber-800 tracking-widest">{tenant.name}</h1>
+          <nav className="space-x-6 text-sm text-gray-700">
+            <a href="#" className="hover:text-amber-700">Home</a>
+            <a href="#features" className="hover:text-amber-700">Collections</a>
+            <a href="#about" className="hover:text-amber-700">Story</a>
+            <a href="#" className="hover:text-amber-700">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        <section className="text-center py-20 px-4 bg-amber-50/50">
+          <h2 className="text-5xl font-bold text-amber-800">{c.hero_title}</h2>
+          <p className="text-xl text-gray-600 mt-4 max-w-2xl mx-auto">{c.hero_subtitle}</p>
+          <div className="mt-8">
+            <a href={c.hero_button_link} className="px-8 py-3 bg-amber-800 text-white rounded-sm hover:bg-amber-700 inline-block">{c.hero_button_text}</a>
+          </div>
+        </section>
+        <section id="features" className="max-w-6xl mx-auto px-4 py-16">
+          <h3 className="text-3xl font-bold text-center mb-12 text-amber-800">Our Offerings</h3>
+          <div className="grid md:grid-cols-3 gap-8">
+            {c.features.map((f: any, i: number) => (
+              <div key={i} className="p-6 bg-white border border-amber-200 rounded shadow-sm">
+                <h4 className="font-bold text-lg text-amber-700">{f.title}</h4>
+                <p className="text-gray-600 mt-2">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section id="about" className="bg-amber-50/30 py-16 px-4">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            {c.about_image && <img src={c.about_image} alt="About" className="w-full md:w-1/2 rounded shadow" />}
+            <div>
+              <h3 className="text-3xl font-bold text-amber-800">{c.about_title}</h3>
+              <p className="text-gray-700 mt-4">{c.about_description}</p>
+            </div>
+          </div>
+        </section>
+        <footer className="border-t border-amber-200 py-6 text-center text-gray-500 text-sm">
+          {c.footer_text}
+        </footer>
+      </main>
+    </div>
+  );
+};
+
+// -------- REGISTRY (include all themes) --------
+
+// -------- THEME: PHULBARI (Floral/Nepali) --------
+const PhulbariTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  const features = c.features || [
+    { title: 'Fresh Flowers', description: 'Daily arrival from hillside farms.' },
+    { title: 'Handcrafted', description: 'Every bouquet made with care.' },
+    { title: 'Same-Day Delivery', description: 'Free delivery in Kathmandu.' },
+  ];
+
+  return (
+    <div className="min-h-screen" style={{ 
+      fontFamily: "'DM Sans', sans-serif",
+      backgroundColor: '#FFFDF8',
+      color: '#163929',
+    }}>
+      <style>{`
+        :root {
+          --bg: #FFFDF8;
+          --fg: #163929;
+          --muted: #5a7a6a;
+          --accent: #D4A853;
+          --card: #FFFFFF;
+          --border: #e8e0d4;
+          --rose: #f27878;
+          --forest: #256d48;
+        }
+        .blob {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.25;
+          animation: blobFloat 12s ease-in-out infinite alternate;
+        }
+        @keyframes blobFloat {
+          0% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -40px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.95); }
+          100% { transform: translate(10px, -10px) scale(1.05); }
+        }
+        .btn-shine {
+          position: relative;
+          overflow: hidden;
+        }
+        .btn-shine::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -60%;
+          width: 40%;
+          height: 200%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+          transform: skewX(-20deg);
+          transition: left 0.6s ease;
+        }
+        .btn-shine:hover::after { left: 120%; }
+        .card-lift {
+          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+        }
+        .card-lift:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 60px rgba(22, 57, 41, 0.12), 0 4px 16px rgba(212, 168, 83, 0.1);
+        }
+        .img-zoom { overflow: hidden; }
+        .img-zoom img {
+          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .img-zoom:hover img { transform: scale(1.08); }
+        .marquee-track {
+          display: flex;
+          animation: marqueeScroll 30s linear infinite;
+          width: max-content;
+        }
+        @keyframes marqueeScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .nav-glass {
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          background: rgba(255, 253, 248, 0.85);
+          border-bottom: 1px solid rgba(232, 224, 212, 0.6);
+        }
+      `}</style>
+      <nav className="nav-glass fixed top-0 left-0 right-0 z-50 transition-shadow duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            <a href="#" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 rounded-full bg-forest-700 flex items-center justify-center transition-transform group-hover:scale-110" style={{ backgroundColor: c.primary_color || '#256d48' }}>
+                <i className="fa-solid fa-seedling text-white text-lg"></i>
+              </div>
+              <div>
+                <span className="font-display font-bold text-xl text-forest-900 tracking-tight" style={{ fontFamily: "'Playfair Display', serif" }}>{tenant.name}</span>
+                <span className="hidden sm:block text-[10px] text-forest-600 -mt-1 tracking-widest uppercase">Flowers of Nepal</span>
+              </div>
+            </a>
+            <div className="hidden lg:flex items-center gap-8">
+              <a href="#collections" className="text-sm font-medium text-forest-800 hover:text-gold-500 transition-colors">Collections</a>
+              <a href="#products" className="text-sm font-medium text-forest-800 hover:text-gold-500 transition-colors">Shop</a>
+              <a href="#about" className="text-sm font-medium text-forest-800 hover:text-gold-500 transition-colors">Our Story</a>
+              <a href="#testimonials" className="text-sm font-medium text-forest-800 hover:text-gold-500 transition-colors">Reviews</a>
+              <a href="#contact" className="text-sm font-medium text-forest-800 hover:text-gold-500 transition-colors">Contact</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-16">
+        <div className="absolute inset-0">
+          <div className="blob w-[500px] h-[500px] bg-cream-300 top-[-100px] right-[-100px]" style={{ backgroundColor: c.primary_color ? c.primary_color + '20' : '#D4A85320' }}></div>
+          <div className="blob w-[400px] h-[400px] bg-forest-200 bottom-[-50px] left-[-100px]" style={{ animationDelay: '-4s', backgroundColor: c.primary_color ? c.primary_color + '30' : '#256d4830' }}></div>
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 lg:py-0 grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-forest-50 border border-forest-200 rounded-full px-4 py-1.5 mb-6" style={{ borderColor: c.primary_color || '#256d48' }}>
+              <span className="w-2 h-2 rounded-full bg-forest-500 animate-pulse" style={{ backgroundColor: c.primary_color || '#256d48' }}></span>
+              <span className="text-xs font-semibold text-forest-700 tracking-wide uppercase">Same-Day Delivery</span>
+            </div>
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-forest-950 leading-[1.05] mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+              {c.hero_title || 'Blooms That Speak'}
+              <span className="relative inline-block">
+                <span className="relative z-10 text-forest-700">From Nepal</span>
+                <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none"><path d="M2 8C40 2 80 2 100 6C120 10 160 4 198 8" stroke="#D4A853" strokeWidth="3" strokeLinecap="round"/></svg>
+              </span>
+            </h1>
+            <p className="text-lg text-forest-600 leading-relaxed max-w-lg mb-8 font-light">{c.hero_subtitle || 'Handcrafted bouquets and sacred garlands from the heart of Nepal.'}</p>
+            <div className="flex flex-wrap gap-4">
+              <a href="#products" className="btn-shine inline-flex items-center gap-2 bg-forest-700 hover:bg-forest-800 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-sm tracking-wide" style={{ backgroundColor: c.primary_color || '#256d48' }}>
+                <span>Explore Flowers</span>
+                <i className="fa-solid fa-arrow-right text-xs"></i>
+              </a>
+            </div>
+            <div className="flex items-center gap-6 mt-10 pt-8 border-t border-forest-100">
+              <div className="text-center"><p className="font-display text-2xl font-bold text-forest-900">5K+</p><p className="text-xs text-forest-500">Happy Customers</p></div>
+              <div className="w-px h-10 bg-forest-200"></div>
+              <div className="text-center"><p className="font-display text-2xl font-bold text-forest-900">50+</p><p className="text-xs text-forest-500">Flower Varieties</p></div>
+              <div className="w-px h-10 bg-forest-200"></div>
+              <div className="text-center"><p className="font-display text-2xl font-bold text-forest-900">4.9</p><p className="text-xs text-forest-500"><i className="fa-solid fa-star text-gold-500"></i> Rating</p></div>
+            </div>
+          </div>
+          <div className="relative hidden lg:block">
+            <div className="relative w-full h-[600px]">
+              <div className="absolute top-0 right-0 w-72 h-96 rounded-3xl overflow-hidden shadow-2xl transform rotate-3 img-zoom">
+                <img src="https://picsum.photos/seed/nepalflower/600/800.jpg" alt="Flower arrangement" className="w-full h-full object-cover" />
+              </div>
+              <div className="absolute bottom-8 left-0 w-60 h-80 rounded-3xl overflow-hidden shadow-2xl transform -rotate-4 img-zoom">
+                <img src="https://picsum.photos/seed/marigold/500/700.jpg" alt="Marigold garlands" className="w-full h-full object-cover" />
+              </div>
+              <div className="absolute top-1/2 left-1/3 w-40 h-40 rounded-2xl overflow-hidden shadow-xl transform -rotate-6 img-zoom">
+                <img src="https://picsum.photos/seed/roses/400/400.jpg" alt="Roses" className="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="collections" className="py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
+          <span className="text-xs font-semibold text-gold-500 tracking-[0.2em] uppercase">Curated For You</span>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold text-forest-950 mt-3 mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>Our Collections</h2>
+          <p className="text-forest-500 max-w-2xl mx-auto">From sacred festival garlands to modern wedding arrangements, each collection is crafted with Nepali artistry.</p>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {['Festival Mala', 'Wedding Blooms', 'Premium Bouquets', 'Puja Flowers'].map((name, i) => (
+            <div key={i} className="card-lift group relative rounded-2xl overflow-hidden h-80 cursor-pointer">
+              <img src={`https://picsum.photos/seed/collection${i+1}/500/700.jpg`} alt={name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-forest-950/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h3 className="font-display text-xl font-bold text-white mt-1" style={{ fontFamily: "'Playfair Display', serif" }}>{name}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section id="about" className="py-24 lg:py-32 bg-forest-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="relative">
+            <div className="rounded-3xl overflow-hidden shadow-2xl img-zoom">
+              <img src="https://picsum.photos/seed/nepalshop/800/600.jpg" alt="Our shop" className="w-full h-[500px] object-cover" />
+            </div>
+          </div>
+          <div>
+            <span className="text-xs font-semibold text-gold-500 tracking-[0.2em] uppercase">Our Story</span>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold text-forest-950 mt-3 mb-6 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>{c.about_title || 'Rooted in Tradition'}</h2>
+            <div className="space-y-4 text-forest-600 leading-relaxed">
+              <p>{c.about_description || 'We bring the freshest flowers from Nepal\'s hillside farms to your doorstep.'}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center flex-shrink-0"><i className="fa-solid fa-mountain-sun text-forest-600"></i></div>
+                <div><p className="font-semibold text-forest-900 text-sm">Locally Grown</p><p className="text-xs text-forest-500">Hillside sourced</p></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-forest-50 flex items-center justify-center flex-shrink-0"><i className="fa-solid fa-hand-holding-heart text-forest-600"></i></div>
+                <div><p className="font-semibold text-forest-900 text-sm">Handcrafted</p><p className="text-xs text-forest-500">No machines</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer className="bg-forest-900 text-forest-200 pt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-10 h-10 rounded-full bg-forest-700 flex items-center justify-center"><i className="fa-solid fa-seedling text-cream-200 text-lg"></i></div>
+                <span className="font-display font-bold text-xl text-white" style={{ fontFamily: "'Playfair Display', serif" }}>{tenant.name}</span>
+              </div>
+              <p className="text-sm text-forest-400 leading-relaxed mb-4">{c.footer_text || '© 2025 All rights reserved.'}</p>
+              <div className="flex gap-3">
+                {c.social_facebook && <a href={c.social_facebook} className="w-9 h-9 rounded-full bg-forest-800 hover:bg-forest-700 flex items-center justify-center transition-colors"><i className="fa-brands fa-facebook-f text-sm"></i></a>}
+                {c.social_instagram && <a href={c.social_instagram} className="w-9 h-9 rounded-full bg-forest-800 hover:bg-forest-700 flex items-center justify-center transition-colors"><i className="fa-brands fa-instagram text-sm"></i></a>}
+                {c.social_twitter && <a href={c.social_twitter} className="w-9 h-9 rounded-full bg-forest-800 hover:bg-forest-700 flex items-center justify-center transition-colors"><i className="fa-brands fa-twitter text-sm"></i></a>}
+                {c.social_youtube && <a href={c.social_youtube} className="w-9 h-9 rounded-full bg-forest-800 hover:bg-forest-700 flex items-center justify-center transition-colors"><i className="fa-brands fa-youtube text-sm"></i></a>}
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-forest-800 pt-6 text-center text-xs text-forest-500">{c.footer_text || `© ${new Date().getFullYear()} ${tenant.name}. All rights reserved.`}</div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+export const THEME_REGISTRY: Record<string, React.FC<ThemeProps>> = {
+  modern: ModernTheme,
+  dark: DarkTheme,
+  playful: PlayfulTheme,
+  minimal: MinimalTheme,
+  corporate: CorporateTheme,
+  vintage: VintageTheme,
+  phulbari: PhulbariTheme,
+};
+
+export const DEFAULT_THEME = 'modern';
+export const THEME_LIST = Object.keys(THEME_REGISTRY);
+
+export function getThemeComponent(themeName: string): React.FC<ThemeProps> {
+  return THEME_REGISTRY[themeName] || THEME_REGISTRY[DEFAULT_THEME];
+}
+
+// -------- THEME: PHULBARI (Floral/Nepali) --------

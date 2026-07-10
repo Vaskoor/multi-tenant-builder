@@ -1,0 +1,188 @@
+'use client';
+
+import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+type FeatureKey = 'accounting_module' | 'advanced_reporting' | 'gst_billing' | 'multi_branch';
+const THEMES = ['modern', 'dark', 'playful', 'minimal', 'corporate', 'vintage', 'phulbari'];
+
+export default function DashboardPage() {
+  const { data: session } = useSession();
+  const [tenant, setTenant] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedTheme, setSelectedTheme] = useState('modern');
+  const [primaryColor, setPrimaryColor] = useState('#0070f3');
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroSubtitle, setHeroSubtitle] = useState('');
+  const [customDomain, setCustomDomain] = useState('');
+  const [buildStatus, setBuildStatus] = useState('');
+  const [stats, setStats] = useState({ pageViews: 0, contacts: 0, products: 0 });
+
+  const tenantSlug = (session?.user as any)?.tenantSlug;
+
+  const fetchTenant = async () => {
+    if (!tenantSlug) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/tenant?slug=${tenantSlug}`);
+      const data = await res.json();
+      setTenant(data);
+      const config = data?.themeConfig || {};
+      setSelectedTheme(config.theme || 'modern');
+      setPrimaryColor(config.primary_color || '#0070f3');
+      setHeroTitle(config.hero_title || '');
+      setHeroSubtitle(config.hero_subtitle || '');
+      setCustomDomain(data?.customDomain || '');
+      const statsRes = await fetch(`/api/analytics/${tenantSlug}?action=stats`);
+      const statsData = await statsRes.json();
+      setStats(statsData || { pageViews: 0, contacts: 0, products: 0 });
+    } catch (e) { console.error(e); } finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchTenant(); }, [tenantSlug]);
+
+  const toggleFeature = async (key: FeatureKey, currentValue: boolean) => {
+    const res = await fetch('/api/features', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantSlug, featureKey: key, enabled: !currentValue }),
+    });
+    if (res.ok) fetchTenant();
+  };
+
+  const updateTheme = async () => {
+    const res = await fetch('/api/tenant/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantSlug, theme: selectedTheme, primary_color: primaryColor, hero_title: heroTitle, hero_subtitle: heroSubtitle }),
+    });
+    if (res.ok) { fetchTenant(); alert('Settings updated!'); }
+  };
+
+  const updateDomain = async () => {
+    const res = await fetch('/api/tenant/domain', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tenantSlug, domain: customDomain }),
+    });
+    const data = await res.json();
+    if (res.ok) { alert(data.message || 'Domain updated!'); fetchTenant(); } else { alert(data.error || 'Failed to update domain'); }
+  };
+
+  const buildSite = async () => {
+    setBuildStatus('Building...');
+    try {
+      const res = await fetch(`/api/build/${tenantSlug}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) setBuildStatus(`✅ Built at ${data.path}`);
+      else setBuildStatus(`❌ Error: ${data.error}`);
+    } catch (e) { setBuildStatus('❌ Build failed'); }
+  };
+
+  if (loading) return <div>Loading your site settings...</div>;
+  if (!tenant) return <div>No tenant found. Please contact support.</div>;
+
+  const overrides = tenant.featureOverrides || {};
+  const defaultFlags = { accounting_module: false, advanced_reporting: false, gst_billing: false, multi_branch: false };
+  const features = { ...defaultFlags, ...overrides };
+  const liveUrl = tenant.customDomain ? `https://${tenant.customDomain}` : `http://${tenantSlug}.localhost:3000`;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-gray-800">{tenant.name}</h1>
+        <div className="flex gap-3">
+          <a href={liveUrl} target="_blank" className="text-blue-600 hover:underline text-sm">🌐 View Live Site</a>
+          <span className="text-sm bg-gray-200 px-3 py-1 rounded-full">Plan: {tenant.plan}</span>
+        </div>
+      </div>
+
+      {/* Quick link to Website Settings */}
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg flex justify-between items-center">
+        <div>
+          <span className="font-semibold text-blue-800">🎨 Customize your site!</span>
+          <span className="text-sm text-blue-600 ml-2">Change theme, colors, content and more.</span>
+        </div>
+        <Link href="/dashboard/settings" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+          Go to Website Settings →
+        </Link>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"><div className="text-sm text-gray-500">Page Views</div><div className="text-2xl font-bold">{stats.pageViews}</div></div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"><div className="text-sm text-gray-500">Contact Submissions</div><div className="text-2xl font-bold">{stats.contacts}</div></div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"><div className="text-sm text-gray-500">Products</div><div className="text-2xl font-bold">{stats.products}</div></div>
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="text-sm text-gray-500">Builds</div>
+          <button onClick={buildSite} className="mt-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm w-full">🚀 Rebuild Static Site</button>
+          {buildStatus && <div className="text-xs mt-1 text-gray-500">{buildStatus}</div>}
+        </div>
+      </div>
+
+      {/* Theme & Customization (quick) */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4">🎨 Quick Theme & Content</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Theme</label>
+            <select
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+            >
+              {THEMES.map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Primary Color</label>
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              className="mt-1 w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Hero Title</label>
+            <input type="text" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Welcome" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Hero Subtitle</label>
+            <input type="text" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="We deliver quality" />
+          </div>
+        </div>
+        <button onClick={updateTheme} className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">💾 Save Appearance</button>
+      </div>
+
+      {/* Custom Domain */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4">🌐 Custom Domain</h2>
+        <p className="text-sm text-gray-500 mb-2">Point your domain to <strong>{process.env.NEXT_PUBLIC_VERCEL_URL || 'your-server-ip'}</strong></p>
+        <div className="flex gap-2">
+          <input type="text" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="mybusiness.com" className="flex-1 border border-gray-300 rounded-lg px-3 py-2" />
+          <button onClick={updateDomain} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Update Domain</button>
+        </div>
+        {tenant.domainVerified && <div className="mt-2 text-green-600 text-sm">✅ Domain verified</div>}
+        {!tenant.domainVerified && tenant.customDomain && <div className="mt-2 text-yellow-600 text-sm">⏳ Pending verification (add TXT record)</div>}
+      </div>
+
+      {/* Feature Flags */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 className="font-bold text-lg mb-4">⚙️ Feature Flags</h3>
+        <div className="space-y-3">
+          {Object.keys(features).map(key => (
+            <div key={key} className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <span className="font-mono text-sm">{key}</span>
+              <button onClick={() => toggleFeature(key as FeatureKey, features[key])} className={`px-4 py-1 rounded-full text-sm font-medium transition ${features[key] ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                {features[key] ? '✅ Enabled' : '⛔ Disabled'}
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">💡 Stored in <strong>featureOverrides</strong> JSONB – no new tables!</div>
+      </div>
+    </div>
+  );
+}

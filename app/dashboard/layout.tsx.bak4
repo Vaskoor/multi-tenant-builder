@@ -1,0 +1,53 @@
+'use client';
+import { useSession, signOut } from 'next-auth/react';
+import { SessionProvider } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+function DashboardNav() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') router.push('/login');
+  }, [status, router]);
+
+  if (status === 'loading') return <div className="p-8 text-center">Loading...</div>;
+  if (!session) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex">
+      <aside className="w-64 bg-white shadow-md border-r border-gray-200 p-4 flex flex-col">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">🏢 Dashboard</h2>
+        <nav className="flex-1 space-y-1">
+          <Link href="/dashboard" className="block px-4 py-2 rounded hover:bg-gray-100">📊 Overview</Link>
+          <Link href="/dashboard/products" className="block px-4 py-2 rounded hover:bg-gray-100">📦 Products</Link>
+          <Link href="/dashboard/orders" className="block px-4 py-2 rounded hover:bg-gray-100">🛒 Orders</Link>
+          <Link href="/dashboard/accounting" className="block px-4 py-2 rounded hover:bg-gray-100">💰 Accounting</Link>
+          <Link href="/dashboard/settings" className="block px-4 py-2 rounded hover:bg-gray-100 bg-blue-50 text-blue-700">🎨 Website Settings</Link>
+        </nav>
+        <button onClick={() => signOut({ callbackUrl: '/login' })} className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 text-red-600 mt-4">🚪 Logout</button>
+      </aside>
+
+      <main className="flex-1 p-6">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 min-h-full">
+          {/*
+            This is where child pages render.
+          */}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <DashboardNav />
+      <div className="bg-gray-100 p-6">
+        {children}
+      </div>
+    </SessionProvider>
+  );
+}

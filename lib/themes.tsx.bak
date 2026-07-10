@@ -1,0 +1,126 @@
+import { Tenant } from '@prisma/client';
+
+export interface ThemeProps {
+  tenant: Tenant;
+}
+
+// Helper to get config with defaults
+function getConfig(tenant: Tenant) {
+  const config = (tenant.themeConfig as any) || {};
+  return {
+    primary_color: config.primary_color || '#0070f3',
+    secondary_color: config.secondary_color || '#6c757d',
+    font_family: config.font_family || 'Inter, sans-serif',
+    hero_title: config.hero_title || 'Welcome to our store',
+    hero_subtitle: config.hero_subtitle || 'We deliver quality',
+    social_facebook: config.social_facebook || '',
+    social_instagram: config.social_instagram || '',
+    layout: config.layout || 'centered',
+    ...config,
+  };
+}
+
+// -------- MODERN THEME --------
+const ModernTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-white" style={{ fontFamily: c.font_family }}>
+      <header className="border-b" style={{ borderColor: c.primary_color }}>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-2">
+          <h1 className="text-2xl font-bold" style={{ color: c.primary_color }}>
+            {tenant.name}
+          </h1>
+          <nav className="space-x-6 text-sm">
+            <a href="#" className="hover:underline">Home</a>
+            <a href="#" className="hover:underline">Products</a>
+            <a href="#" className="hover:underline">Contact</a>
+          </nav>
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto px-4 py-12">
+        <section className="text-center py-16">
+          <h2 className="text-5xl font-extrabold tracking-tight" style={{ color: c.primary_color }}>
+            {c.hero_title}
+          </h2>
+          <p className="text-xl text-gray-600 mt-4">{c.hero_subtitle}</p>
+          <div className="mt-8 flex justify-center gap-4 flex-wrap">
+            <button className="px-6 py-3 text-white rounded-lg shadow-lg" style={{ backgroundColor: c.primary_color }}>
+              Shop Now
+            </button>
+            <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+              Learn More
+            </button>
+          </div>
+        </section>
+        <section className="grid md:grid-cols-3 gap-6 mt-12">
+          {['Feature 1', 'Feature 2', 'Feature 3'].map((f, i) => (
+            <div key={i} className="p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+              <h3 className="font-bold text-lg">{f}</h3>
+              <p className="text-gray-600 text-sm mt-2">Description of {f}.</p>
+            </div>
+          ))}
+        </section>
+      </main>
+      <footer className="border-t py-6 text-center text-gray-500 text-sm">
+        &copy; {new Date().getFullYear()} {tenant.name}
+        {c.social_facebook && <span className="mx-4">|</span>}
+        {c.social_facebook && <a href={c.social_facebook} className="hover:underline">Facebook</a>}
+        {c.social_instagram && <span className="mx-2">|</span>}
+        {c.social_instagram && <a href={c.social_instagram} className="hover:underline">Instagram</a>}
+      </footer>
+    </div>
+  );
+};
+
+// -------- CLASSIC THEME --------
+const ClassicTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-gray-100 font-serif" style={{ fontFamily: c.font_family }}>
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <header className="text-center border-b-2 pb-4" style={{ borderColor: c.primary_color }}>
+          <h1 className="text-5xl font-bold tracking-wide" style={{ color: c.primary_color }}>
+            {tenant.name}
+          </h1>
+          <p className="text-gray-600 mt-2">{c.hero_subtitle}</p>
+        </header>
+        <main className="mt-8">
+          <div className="bg-white p-6 shadow-md rounded">
+            <h2 className="text-2xl font-semibold" style={{ color: c.primary_color }}>{c.hero_title}</h2>
+            <p className="mt-2 text-gray-700">Classic theme with a traditional feel.</p>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+// -------- MINIMAL THEME --------
+const MinimalTheme: React.FC<ThemeProps> = ({ tenant }) => {
+  const c = getConfig(tenant);
+  return (
+    <div className="min-h-screen bg-white flex items-center justify-center" style={{ fontFamily: c.font_family }}>
+      <div className="text-center max-w-2xl px-4">
+        <h1 className="text-6xl font-light tracking-tight" style={{ color: c.primary_color }}>
+          {tenant.name}
+        </h1>
+        <p className="text-lg text-gray-500 mt-4">{c.hero_subtitle}</p>
+        <div className="mt-8 w-16 h-1 mx-auto" style={{ backgroundColor: c.primary_color }}></div>
+      </div>
+    </div>
+  );
+};
+
+// -------- REGISTRY --------
+export const THEME_REGISTRY: Record<string, React.FC<ThemeProps>> = {
+  modern: ModernTheme,
+  classic: ClassicTheme,
+  minimal: MinimalTheme,
+};
+
+export const DEFAULT_THEME = 'modern';
+export const THEME_LIST = Object.keys(THEME_REGISTRY);
+
+export function getThemeComponent(themeName: string): React.FC<ThemeProps> {
+  return THEME_REGISTRY[themeName] || THEME_REGISTRY[DEFAULT_THEME];
+}
